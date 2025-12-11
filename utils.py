@@ -75,10 +75,35 @@ def get_vocab_using_pareto(
     if output_file:
         freq_df.to_csv(f"{output_file}/frequency.csv", index=False)
 
-    # cutoff_index = freq_df["cumulative_frequency"].searchsorted(threshold)
     result_df = freq_df[freq_df["cumulative_frequency"] < threshold]
-
-
+    vocab_list = result_df["word"].to_list()
     vocab_pareto = result_df["word"].to_dict()
+    swapped_vocab_pareto = {v: k for k, v in vocab_pareto.items()}
+    
+    return swapped_vocab_pareto, vocab_list
 
-    return result_df, vocab_pareto
+
+def binary_class(texts, vocab_list):
+    vocab_index = {word: i for i, word in enumerate(vocab_list)}
+    
+    all_words_in_text = []
+    all_classes = []
+
+    for t in texts:
+        words = t.split()
+
+        #words in the vocab_list
+        filtered = [w for w in words if w in vocab_index]
+        all_words_in_text.append(filtered)
+
+        #binary class
+        vec = np.zeros(len(vocab_list), dtype=int)
+        for w in filtered:
+            vec[vocab_index[w]] = 1
+
+        all_classes.append(vec)
+
+    return all_words_in_text, np.array(all_classes)
+
+def to_numpy_array(series):
+    return np.array(series.tolist(), dtype=float)
