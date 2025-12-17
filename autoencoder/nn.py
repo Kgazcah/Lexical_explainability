@@ -28,7 +28,6 @@ def bce_plus_cosine(alpha=0.2):
     return loss
 
 
-
 class Autoencoder:
     def __init__(self, 
                  input_size=650, 

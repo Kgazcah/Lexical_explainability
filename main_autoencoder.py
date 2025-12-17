@@ -79,6 +79,7 @@ print(len(df_train), len(df_val), len(df_test))
 # X_val   = utils.to_numpy_array(df_val['doc2vec_embedding'])
 # X_test  = utils.to_numpy_array(df_test['doc2vec_embedding'])
 
+X_all = utils.to_numpy_array(df_preprocessed['binary_class'])
 X_train = utils.to_numpy_array(df_train['binary_class'])
 X_val   = utils.to_numpy_array(df_val['binary_class'])
 X_test  = utils.to_numpy_array(df_test['binary_class'])
@@ -113,8 +114,17 @@ indx = 0
 print(f"Original binary class: {X_test[indx]}")
 print(f"Embedding encoded for that binary embedding: {z_embeddings[indx]}")
 print(f"Reconstructed binary class from the embedding: {reconstructed_binary[indx]}")
-exit()
-####################### Step 7:  
+
+hamming = np.mean(X_test != reconstructed_binary, axis=1)
+
+print("Hamming distance (mean):", round(hamming.mean(),3))
+
+####################### Step 11:  Get all the embeddings
+
+embeddings = autoencoder.encode(X_all)
+print(embeddings)
+
+####################### Step 12: Getting the dataset for training the embeddings
 
 
 
