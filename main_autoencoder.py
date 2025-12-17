@@ -1,15 +1,17 @@
+
 import pickle
 import pandas as pd
 import numpy as np
 import utils
 from encoding.doc2vec import Doc2VecEncoder
 from nn.nn import MultiLabelModel
+from autoencoder.nn import Autoencoder
 from sklearn.model_selection import train_test_split
+from visualization.plotting import Visualization 
 
 problem = 'software_requirements/no_stopwords'
 df = pd.read_csv(f'data/{problem}/dataset.csv')
-n_gram_n = 1
-
+# n_gram_n = 1
 
 ############### Step 1: preprocessing the dataset
 if problem.split('/')[1] == 'stopwords':
@@ -73,35 +75,47 @@ df_train, df_val = train_test_split(
 
 print(len(df_train), len(df_val), len(df_test))
 
+# X_train = utils.to_numpy_array(df_train['doc2vec_embedding'])
+# X_val   = utils.to_numpy_array(df_val['doc2vec_embedding'])
+# X_test  = utils.to_numpy_array(df_test['doc2vec_embedding'])
 
-X_train = utils.to_numpy_array(df_train['doc2vec_embedding'])
-X_val   = utils.to_numpy_array(df_val['doc2vec_embedding'])
-X_test  = utils.to_numpy_array(df_test['doc2vec_embedding'])
+X_train = utils.to_numpy_array(df_train['binary_class'])
+X_val   = utils.to_numpy_array(df_val['binary_class'])
+X_test  = utils.to_numpy_array(df_test['binary_class'])
 
-y_train = utils.to_numpy_array(df_train['binary_class'])
-y_val   = utils.to_numpy_array(df_val['binary_class'])
-y_test  = utils.to_numpy_array(df_test['binary_class'])
+####################### Step 6: Training the autoencoder
+
+"""
+epochs = 200
+
+autoencoder = Autoencoder(input_size=X_train.shape[1], embedding_size=200)
+history = autoencoder.fit(X_train, X_val, epochs=epochs)
+# print(history.history)
+autoencoder.save(f'assets/autoencoder_model/{problem}/model_autoencoder.h5')
+autoencoder.save_history(history, f'assets/autoencoder_model/{problem}/history.pkl')
+
+##################### Step 9: Visualizing the training plots
+
+plot = Visualization()
+plot.plotting_metric(history.history, 'cosine_sim', 'val_cosine_sim', path=f'assets/learning_graphs/software_requirements/autoencoder/no_stopwords', fig_name='Learning training')
+plot.plotting_loss(history.history, 'loss', 'val_loss', path=f'assets/learning_graphs/software_requirements/autoencoder/no_stopwords', fig_name='Loss training')
+"""
+##################### Step 10: Encoding & Testing the model
+
+#load the autoencoder
+autoencoder = Autoencoder()
+autoencoder.load(f'assets/autoencoder_model/{problem}/model_autoencoder.h5')
+z_embeddings = autoencoder.encode(X_test)
+
+reconstructed = autoencoder.decode(z_embeddings)
+reconstructed_binary = (reconstructed > 0.5).astype(int)
+indx = 0
+print(f"Original binary class: {X_test[indx]}")
+print(f"Embedding encoded for that binary embedding: {z_embeddings[indx]}")
+print(f"Reconstructed binary class from the embedding: {reconstructed_binary[indx]}")
+exit()
+####################### Step 7:  
 
 
-model = MultiLabelModel(
-    input_dim=X_train.shape[1],
-    output_dim=y_train.shape[1]
-)
-
-# history = model.train(
-#     X_train, y_train,
-#     X_val=X_val, y_val=y_val,
-#     epochs=200
-# )
-
-# model.save_history(history, 'assets/nn_model/history.pkl')
-# model.save_model('assets/nn_model/model.h5')
-
-
-####################### Step 6: Testing the model 
-model = MultiLabelModel.load('assets/nn_model/model.h5')
-results = model.evaluate(X_test, y_test)
-
-print(results)
 
 
