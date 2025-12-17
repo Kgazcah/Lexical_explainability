@@ -7,7 +7,8 @@ from encoding.doc2vec import Doc2VecEncoder
 from nn.nn import MultiLabelModel
 from autoencoder.nn import Autoencoder
 from sklearn.model_selection import train_test_split
-from visualization.plotting import Visualization 
+from visualization.plotting import Visualization
+from model_embeddings.model_embeddings import Doc2VecToAutoencoder
 
 problem = 'software_requirements/no_stopwords'
 df = pd.read_csv(f'data/{problem}/dataset.csv')
@@ -126,6 +127,10 @@ print(embeddings)
 
 ####################### Step 12: Getting the dataset for training the embeddings
 
+df_preprocessed['autoencoder_embedding'] = embeddings.tolist()
 
-
+df_preprocessed.to_csv(
+    f'assets/method/{problem}/df_preprocessed.csv',
+    index=False
+)
 

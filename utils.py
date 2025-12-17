@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import ast
 from collections import Counter
 from preprocessing.interface_builder import Builder
 from preprocessing.director import Director
@@ -107,3 +108,27 @@ def binary_class(texts, vocab_list):
 
 def to_numpy_array(series):
     return np.array(series.tolist(), dtype=float)
+
+
+#reading all type of embeddings
+def parse_embedding(x):
+    if isinstance(x, np.ndarray):
+        return x.astype(float)
+
+    if isinstance(x, list):
+        return np.array(x, dtype=float)
+
+    if not isinstance(x, str):
+        raise ValueError(f"Tipo no soportado: {type(x)}")
+
+    x = x.strip()
+
+    try:
+        return np.array(ast.literal_eval(x), dtype=float)
+    except (ValueError, SyntaxError):
+        pass
+
+    return np.fromstring(x.strip("[]"), sep=" ")
+
+def read_emb(series):
+    return np.vstack(series.apply(parse_embedding))

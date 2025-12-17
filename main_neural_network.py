@@ -100,8 +100,8 @@ model.save_model('assets/nn_model/model.h5')
 
 ##################### Step 9: Visualizing the training plots
 plot = Visualization()
-plot.plotting_metric(history.history, 'cosine_sim', 'val_cosine_sim', path=f'assets/learning_graphs/{problem}/autoencoder', fig_name='Learning training')
-plot.plotting_loss(history.history, 'loss', 'val_loss', path=f'assets/learning_graphs/{problem}/autoencoder', fig_name='Loss training')
+plot.plotting_metric(history.history, 'cosine_sim', 'val_cosine_sim', path=f'assets/learning_graphs/software_requirements/simple_neural_network/no_stopwords', fig_name='Learning training')
+plot.plotting_loss(history.history, 'loss', 'val_loss', path=f'assets/learning_graphs/software_requirements/simple_neural_network/no_stopwords', fig_name='Loss training')
 
 ####################### Step 7: Testing the model 
 model = MultiLabelModel.load('assets/nn_model/model.h5')
