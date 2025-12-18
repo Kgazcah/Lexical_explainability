@@ -22,19 +22,20 @@ else:
 
 df_preprocessed = pd.DataFrame({'text': preprocessed_df})
 df_preprocessed['class'] = df['class']
-df_preprocessed.to_csv(f'assets/method/{problem}/df_preprocessed.csv', index=False)    
+# df_preprocessed.to_csv(f'assets/method/{problem}/df_preprocessed.csv', index=False)    
 
 
 ############### Step 2: Getting the full and reduced vocabulary
 vocab_to_index= utils.get_vocab_to_index(preprocessed_df, output_file=f'assets/method/{problem}')
 vocab_size = len(vocab_to_index)
 
-vocab_pareto, vocab_list = utils.get_vocab_using_pareto(df_preprocessed, threshold=.80, output_file=f'assets/method/{problem}')
+vocab_pareto, vocab_list, vocab_pareto_ind = utils.get_vocab_using_pareto(df_preprocessed, threshold=.80, output_file=f'assets/method/{problem}')
 
 print(f"Full vocabulary: {vocab_size}")
 print(f"Reduced vocabulary using pareto: {len(vocab_pareto)}")
-# print(vocab_pareto)
-# print(vocab_list)
+
+df_vocab_pareto = pd.DataFrame(list(vocab_pareto_ind.values()), columns=['word'])
+df_vocab_pareto.to_csv("assets/method/software_requirements/no_stopwords/vocab_pareto.csv", index=False)
 
 
 ################ Step 3: Labeling the text
@@ -47,7 +48,7 @@ df_preprocessed.to_csv(f'assets/method/{problem}/df_preprocessed.csv', index=Fal
 
 ################ Step 4: Encoding the sentences
 
-encoder = Doc2VecEncoder(vector_size=100)
+encoder = Doc2VecEncoder(vector_size=200)
 
 embeddings = encoder.fit_transform(df_preprocessed['text'])
 
@@ -74,7 +75,7 @@ df_train, df_val = train_test_split(
     shuffle=True
 )
 
-print(len(df_train), len(df_val), len(df_test))
+# print(len(df_train), len(df_val), len(df_test))
 
 # X_train = utils.to_numpy_array(df_train['doc2vec_embedding'])
 # X_val   = utils.to_numpy_array(df_val['doc2vec_embedding'])

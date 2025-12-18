@@ -37,8 +37,9 @@ y_train = utils.read_emb(df_train['autoencoder_embedding'])
 y_val = utils.read_emb(df_val['autoencoder_embedding'])
 y_test = utils.read_emb(df_test['autoencoder_embedding'])
 
-################### Step 2: Training the neural network
 autoencoder = Autoencoder()
+"""
+################### Step 2: Training the neural network
 autoencoder.load(f'assets/autoencoder_model/{problem}/model_autoencoder.h5')
 
 model = Doc2VecToAutoencoder(
@@ -55,9 +56,27 @@ history = model.fit(
     epochs=200
 )
 
+model.save('assets/models/software_requirements/no_stopwords/model_embeddings.keras')
+
+################### Step 3: Visualizing
+
 plot = Visualization()
 plot.plotting_metric(history.history, 'cosine_sim', 'val_cosine_sim', path=f'assets/learning_graphs/software_requirements/model_embeddings/no_stopwords', fig_name='Learning training')
 plot.plotting_loss(history.history, 'loss', 'val_loss', path=f'assets/learning_graphs/software_requirements/model_embeddings/no_stopwords', fig_name='Loss training')
-
+"""
+################### Step 4: Loading the model to predict
+model = Doc2VecToAutoencoder()
+model.load('assets/models/software_requirements/no_stopwords/model_embeddings.keras')
 binary_emb_reconstructed = model.reconstruct_bow(X_test, autoencoder, threshold=0.5)
+
+vocab_pareto = pd.read_csv("assets/method/software_requirements/no_stopwords/vocab_pareto.csv")
+vocab_pareto = vocab_pareto['word'].tolist()
+print(df_test.head())
+indx = 5
+print(f"Real BoW: {df_test['binary_class'].iloc[indx]}")
+print(f"Reconstructed BoW: {binary_emb_reconstructed[indx]}")
+print(f"Actual words in the sentence: {df_test['words'].iloc[indx]}")
+words_in_reconstructed_vector = utils.vector_to_words(vocab_pareto, binary_emb_reconstructed[indx])
+print(f"Predicted words in the sentence: {words_in_reconstructed_vector}")
+
 

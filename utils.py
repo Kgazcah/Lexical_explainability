@@ -81,7 +81,7 @@ def get_vocab_using_pareto(
     vocab_pareto = result_df["word"].to_dict()
     swapped_vocab_pareto = {v: k for k, v in vocab_pareto.items()}
     
-    return swapped_vocab_pareto, vocab_list
+    return swapped_vocab_pareto, vocab_list, vocab_pareto
 
 
 def binary_class(texts, vocab_list):
@@ -132,3 +132,13 @@ def parse_embedding(x):
 
 def read_emb(series):
     return np.vstack(series.apply(parse_embedding))
+
+
+def vector_to_words(vocab, vector):
+    vector = np.asarray(vector)
+
+    if len(vector) != len(vocab):
+        raise ValueError(
+            f"Dimensions did not matched: vector: {len(vector)} and vocab: {len(vocab)}"
+        )
+    return [word for word, v in zip(vocab, vector) if v == 1]

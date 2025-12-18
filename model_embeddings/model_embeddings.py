@@ -114,6 +114,10 @@ class Doc2VecToAutoencoder:
     def load(self, path):
         self.model = tf.keras.models.load_model(
             path,
-            custom_objects={"loss": self._z_loss()}
+            custom_objects={
+                "cosine_sim": cosine_sim,
+                "loss": self._z_loss()
+            }
         )
         return self.model
+
